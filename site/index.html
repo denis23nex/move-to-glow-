@@ -1,0 +1,952 @@
+<!-- movetoglowgroup.html -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Move to Glow | Закрытая группа</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream: #FAF2E8;
+    --cream-deep: #F3E6D6;
+    --card: #FFFDF9;
+    --ink: #2B2117;
+    --ink-soft: #6B5D4F;
+    --terracotta: #B5622E;
+    --terracotta-deep: #8F4B22;
+    --peach: #EFDCC4;
+    --sage: #8C9A76;
+    --sage-deep: #5E6B49;
+    --line: rgba(43,33,23,0.12);
+    --shadow: 0 18px 40px -24px rgba(87,55,23,0.35);
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+  html{scroll-behavior:smooth; -webkit-text-size-adjust:100%;}
+  html, body{height:100%; overscroll-behavior-y:none;}
+  body{
+    font-family:'Manrope', sans-serif;
+    background:var(--cream);
+    color:var(--ink);
+    overflow:hidden;
+    position:fixed; inset:0; width:100%;
+  }
+  h1,h2,h3,.serif{ font-family:'Cormorant Garamond', serif; font-weight:500; letter-spacing:0.01em; }
+  main{
+    height:100vh; height:100dvh;
+    overflow-y:scroll;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-y:contain;
+    scroll-snap-type:y mandatory;
+  }
+  .slide{
+    min-height:100vh; min-height:100dvh;
+    width:100%;
+    scroll-snap-align:start; scroll-snap-stop:always;
+    position:relative;
+    display:flex; flex-direction:column; justify-content:center;
+    padding:112px 8vw 92px;
+    padding-left:calc(8vw + env(safe-area-inset-left));
+    padding-right:calc(8vw + env(safe-area-inset-right));
+  }
+
+  .chrome-top{
+    position:fixed; top:0; left:0; right:0;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:calc(22px + env(safe-area-inset-top)) calc(8vw + env(safe-area-inset-right)) 26px calc(8vw + env(safe-area-inset-left));
+    font-size:12px; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--ink-soft);
+    z-index:20;
+    background:linear-gradient(var(--cream) 55%, transparent);
+    pointer-events:none;
+  }
+  .chrome-top span{pointer-events:auto;}
+  .chrome-top.on-dark{ color:var(--peach); background:linear-gradient(rgba(38,30,20,0.55) 40%, transparent); }
+  .chrome-bottom{
+    position:fixed; bottom:0; left:0; right:0;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:22px calc(8vw + env(safe-area-inset-right)) calc(18px + env(safe-area-inset-bottom)) calc(8vw + env(safe-area-inset-left));
+    font-size:12px; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--ink-soft);
+    z-index:20; pointer-events:none;
+    transition:color .25s ease;
+  }
+  .chrome-bottom.on-dark{ color:var(--peach); }
+
+  .dots{ position:fixed; right:calc(10px + env(safe-area-inset-right)); top:50%; transform:translateY(-50%); display:flex; flex-direction:column; z-index:30; }
+  .dots button{ width:32px; height:32px; display:flex; align-items:center; justify-content:center; border:none; background:transparent; cursor:pointer; padding:0; touch-action:manipulation; }
+  .dots button::before{ content:''; width:8px; height:8px; border-radius:50%; border:1px solid var(--terracotta); background:transparent; transition:background .3s ease, transform .3s ease, border-color .25s ease; }
+  .dots button.active::before{ background:var(--terracotta); transform:scale(1.2); }
+  .dots.on-dark button::before{ border-color:#F3E3CE; }
+  .dots.on-dark button.active::before{ background:#F3E3CE; }
+
+  .eyebrow{
+    display:inline-block; font-size:12px; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--terracotta-deep); background:var(--peach); padding:6px 14px; border-radius:99px;
+    margin-bottom:22px; width:fit-content;
+  }
+  .eyebrow.on-dark{ background:rgba(255,255,255,0.14); color:#F3E3CE; }
+
+  .slide h2{ font-size:clamp(1.9rem, 3.6vw, 2.6rem); max-width:18ch; margin-bottom:16px; }
+  .slide-sub{ font-size:15.5px; line-height:1.6; color:var(--ink-soft); max-width:620px; margin-bottom:34px; }
+
+  /* ---------- CTA BUTTONS & PRICING ---------- */
+  .cta-wrapper{ display:flex; align-items:center; gap:16px; margin-top:28px; flex-wrap:wrap; }
+  .cta-btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:10px;
+    background:var(--terracotta-deep); color:var(--cream);
+    text-decoration:none; padding:15px 32px; border-radius:99px;
+    font-size:14.5px; font-weight:600; letter-spacing:0.02em;
+    box-shadow:var(--shadow); transition:transform .2s ease, background .2s ease;
+  }
+  .cta-btn:hover{ background:var(--terracotta); }
+  .cta-btn:active{ transform:scale(0.98); }
+  .cta-price-badge{
+    font-size:13.5px; color:var(--ink-soft); display:inline-flex; align-items:center; gap:6px;
+  }
+  .cta-price-badge strong{ font-size:18px; color:var(--ink); font-family:'Cormorant Garamond', serif; font-weight:600; }
+
+  /* ---------- HERO ---------- */
+  .hero{ align-items:flex-start; overflow:hidden; }
+  .hero-watermark{
+    position:absolute; left:50%; top:52%; transform:translate(-50%,-50%);
+    font-family:'Cormorant Garamond', serif; font-weight:600;
+    font-size:min(38vw, 420px); line-height:1; color:var(--terracotta);
+    opacity:0.06; white-space:nowrap; pointer-events:none; letter-spacing:0.02em;
+  }
+  .hero-content{ position:relative; z-index:2; animation:riseIn .9s cubic-bezier(.2,.8,.2,1) both; }
+  .hero-title{ font-size:clamp(2.3rem, 6.2vw, 4.6rem); line-height:1.02; letter-spacing:0.01em; }
+  .hero-title .script{ display:block; font-style:italic; font-weight:400; color:var(--terracotta); font-size:0.62em; margin-top:6px; }
+  .hero-sub{ margin-top:24px; max-width:540px; font-size:16.5px; line-height:1.65; color:var(--ink-soft); }
+  @keyframes riseIn{ from{opacity:0; transform:translateY(16px);} to{opacity:1; transform:translateY(0);} }
+
+  .pill-row{ display:flex; flex-wrap:wrap; gap:12px; margin-top:28px; }
+  .pill{
+    display:inline-flex; align-items:center; gap:8px;
+    border:1px solid var(--line); background:var(--card);
+    padding:10px 16px; border-radius:99px; font-size:13px; color:var(--ink);
+    text-decoration:none;
+  }
+
+  .scroll-cue{
+    margin-top:40px; display:flex; align-items:center; gap:10px;
+    font-size:12px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-soft);
+    animation:nudge 2.2s ease-in-out infinite; cursor:pointer; touch-action:manipulation; width:fit-content;
+  }
+  @keyframes nudge{0%,100%{transform:translateY(0);}50%{transform:translateY(6px);}}
+
+  /* ---------- card rows (modules 1 & 2) ---------- */
+  .card-row{ display:grid; grid-template-columns:repeat(3, 1fr); gap:20px; max-width:1100px; }
+  .fact-card{ background:var(--card); border:1px solid var(--line); border-radius:18px; padding:26px 22px; box-shadow:var(--shadow); display:flex; flex-direction:column; }
+  .fact-card .num{ font-size:12.5px; color:var(--ink-soft); margin-bottom:14px; }
+  .fact-card .ic{ width:38px; height:38px; border-radius:50%; background:var(--terracotta); color:var(--cream); display:flex; align-items:center; justify-content:center; margin-bottom:16px; }
+  .fact-card .ic svg{ width:18px; height:18px; }
+  .fact-card h3{ font-size:19px; font-weight:600; font-family:'Manrope',sans-serif; margin-bottom:9px; color:var(--ink); }
+  .fact-card p{ font-size:14px; line-height:1.58; color:var(--ink-soft); flex:1; }
+  .fact-card .tag{ margin-top:14px; display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--terracotta-deep); background:var(--peach); padding:6px 12px; border-radius:99px; width:fit-content; }
+
+  /* ---------- calculator (module 1 extension) ---------- */
+  .calc-wrap{ display:flex; gap:28px; flex-wrap:wrap; max-width:1000px; align-items:flex-start; }
+  .calc-form{ flex:1 1 340px; background:var(--card); border:1px solid var(--line); border-radius:18px; padding:26px; box-shadow:var(--shadow); }
+  .calc-field{ margin-bottom:18px; }
+  .calc-field label{ display:block; font-size:12px; letter-spacing:0.06em; color:var(--ink-soft); margin-bottom:8px; }
+  .calc-field input, .calc-field select{
+    width:100%; font-family:'Manrope',sans-serif; font-size:15px; color:var(--ink);
+    border:1px solid var(--line); background:var(--cream); border-radius:11px; padding:11px 14px;
+    appearance:none; -webkit-appearance:none;
+  }
+  .calc-field select{
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236B5D4F'><path d='M5 8l5 5 5-5H5z'/></svg>");
+    background-repeat:no-repeat; background-position:right 14px center; padding-right:36px;
+  }
+  .calc-field input:focus, .calc-field select:focus{ outline:none; border-color:var(--terracotta); }
+  .calc-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; }
+  .seg{ display:flex; border:1px solid var(--line); border-radius:99px; overflow:hidden; }
+  .seg-btn{ flex:1; padding:10px; background:var(--cream); border:none; font-family:'Manrope',sans-serif; font-size:13.5px; color:var(--ink-soft); cursor:pointer; touch-action:manipulation; }
+  .seg-btn.active{ background:var(--ink); color:var(--cream); }
+  .calc-error{ font-size:13px; color:#a03e2b; margin:-6px 0 14px; }
+  .calc-submit{
+    width:100%; background:var(--terracotta-deep); color:var(--cream); border:none; padding:15px;
+    border-radius:99px; font-family:'Manrope',sans-serif; font-size:14px; letter-spacing:0.04em; cursor:pointer; touch-action:manipulation;
+  }
+  .calc-result{ flex:1 1 300px; background:var(--cream-deep); border-radius:18px; padding:26px; }
+  .calc-result-row{ display:flex; justify-content:space-between; align-items:baseline; padding:9px 0; font-size:14px; color:var(--ink-soft); }
+  .calc-result-row.main{ font-size:16px; color:var(--ink); }
+  .calc-result-row.main strong{ font-family:'Cormorant Garamond', serif; font-size:26px; font-weight:600; color:var(--terracotta-deep); }
+  .calc-result-row strong{ color:var(--ink); }
+  .calc-result hr{ border:none; border-top:1px solid var(--line); margin:14px 0; }
+  .calc-macros{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; text-align:center; }
+  .calc-macros span{ display:block; font-family:'Cormorant Garamond', serif; font-size:22px; color:var(--ink); }
+  .calc-macros label{ font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.04em; }
+  .calc-note{ font-size:12px; line-height:1.55; color:var(--ink-soft); margin-top:16px; }
+
+  /* ---------- PLATE SECTION ---------- */
+  .plate-layout{
+    display:grid; grid-template-columns:minmax(280px, 390px) 1fr; gap:36px;
+    align-items:center; max-width:1060px; margin-top:4px;
+  }
+  .plate-illustration{
+    background:var(--card); border:1px solid var(--line); border-radius:24px;
+    padding:22px; box-shadow:var(--shadow); display:flex; justify-content:center; align-items:center;
+  }
+  .plate-svg{ width:100%; max-width:350px; height:auto; display:block; }
+  .plate-legend{ display:flex; flex-direction:column; gap:12px; }
+  .plate-item{
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:13px 17px; box-shadow:0 4px 16px -8px rgba(87,55,23,0.12);
+    border-left:4px solid var(--terracotta);
+  }
+  .plate-item.green{ border-left-color:#7B9264; }
+  .plate-item.coral{ border-left-color:#C25E34; }
+  .plate-item.sand{ border-left-color:#D0A86E; }
+  .plate-item.sweet{ border-left-color:#9A516E; background:#FFF9FB; }
+  .plate-item-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:3px; }
+  .plate-item-title{ font-weight:700; font-size:14px; color:var(--ink); }
+  .plate-item-share{ font-size:11.5px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-soft); }
+  .plate-item p{ font-size:12.6px; line-height:1.48; color:var(--ink-soft); }
+
+  .dessert-examples{
+    margin-top:7px; padding-top:7px; border-top:1px dashed rgba(154,81,110,0.22);
+    display:flex; flex-direction:column; gap:3px;
+  }
+  .dessert-examples span{ font-size:11.8px; color:#7D3E57; line-height:1.4; }
+  .dessert-examples strong{ color:#9A516E; font-weight:600; }
+
+  /* ---------- gua sha interactive diagram ---------- */
+  .gs-wrap{ display:flex; gap:36px; flex-wrap:wrap; max-width:1020px; align-items:flex-start; }
+  .gs-tips{ list-style:none; display:flex; flex-direction:column; gap:8px; margin-bottom:30px; max-width:620px; }
+  .gs-tips li{ font-size:14px; line-height:1.5; color:var(--ink-soft); padding-left:22px; position:relative; }
+  .gs-tips li::before{ content:'—'; position:absolute; left:0; color:var(--terracotta); }
+  .gs-diagram{ flex:0 0 auto; width:min(78vw, 300px); }
+  .gs-diagram svg{ width:100%; height:auto; display:block; }
+  .gs-face-line{ fill:none; stroke:var(--ink); stroke-width:2.4; stroke-linecap:round; opacity:0.55; }
+  .gs-face-feature{ fill:none; stroke:var(--ink); stroke-width:2; stroke-linecap:round; opacity:0.7; }
+  .gs-line{ fill:none; stroke:var(--terracotta); stroke-width:5; stroke-linecap:round; transition:stroke-dashoffset 0.9s ease; }
+  .gs-clavicle circle{ fill:var(--terracotta); opacity:0; transform-origin:center; transform-box:fill-box; }
+  .gs-clavicle.active circle{ animation:gsPulse 1s ease-in-out 2; }
+  @keyframes gsPulse{ 0%{opacity:0; transform:scale(0.6);} 40%{opacity:1; transform:scale(1.15);} 100%{opacity:0.9; transform:scale(1);} }
+  .gs-panel{ flex:1 1 300px; min-width:260px; }
+  .gs-zones{ display:flex; flex-wrap:wrap; gap:9px; margin-bottom:20px; }
+  .gs-zone-btn{
+    border:1px solid var(--line); background:var(--card); color:var(--ink-soft);
+    padding:9px 16px; border-radius:99px; font-family:'Manrope',sans-serif; font-size:13px; cursor:pointer; touch-action:manipulation;
+  }
+  .gs-zone-btn.active{ background:var(--terracotta-deep); color:var(--cream); border-color:var(--terracotta-deep); }
+  .gs-desc{ background:var(--card); border:1px solid var(--line); border-radius:16px; padding:22px 22px; min-height:150px; box-shadow:var(--shadow); }
+  .gs-desc h4{ font-family:'Manrope',sans-serif; font-weight:700; font-size:15px; margin-bottom:8px; color:var(--ink); }
+  .gs-desc p{ font-size:13.8px; line-height:1.6; color:var(--ink-soft); }
+  .gs-desc .meta{ display:flex; gap:16px; margin-top:14px; font-size:12px; color:var(--terracotta-deep); }
+  .gs-desc .meta span{ display:flex; align-items:center; gap:5px; }
+
+  /* ---------- ticket-style FAQ list (module 3) ---------- */
+  .ticket{ max-width:760px; }
+  .ticket-row{ border-top:1px solid var(--line); padding:22px 0; }
+  .ticket-row:last-child{ border-bottom:1px solid var(--line); }
+  .ticket-head{ display:flex; align-items:baseline; gap:10px; }
+  .ticket-head .q{ font-family:'Cormorant Garamond', serif; font-size:22px; white-space:nowrap; }
+  .ticket-head .leader{ flex:1; border-bottom:2px dotted var(--line); transform:translateY(-6px); }
+  .ticket-head .tag{ font-size:12px; letter-spacing:0.04em; color:var(--terracotta-deep); background:var(--peach); padding:5px 12px; border-radius:99px; white-space:nowrap; }
+  .ticket-row p{ margin-top:10px; font-size:14px; line-height:1.6; color:var(--ink-soft); max-width:640px; }
+
+  /* ---------- rhythm slide (full-bleed) ---------- */
+  .rhythm-slide{ padding:0; justify-content:center; align-items:center; position:relative; overflow:hidden; }
+  .rhythm-bg{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 18% 18%, rgba(255,255,255,0.16), transparent 42%),
+      radial-gradient(circle at 82% 14%, rgba(255,220,180,0.18), transparent 48%),
+      radial-gradient(circle at 30% 88%, rgba(0,0,0,0.18), transparent 55%),
+      linear-gradient(155deg, var(--sage) 0%, #6d7a53 38%, var(--terracotta-deep) 78%, #6a3f1f 100%);
+  }
+  .rhythm-card{
+    position:relative; z-index:2; width:min(88vw, 490px); max-height:82vh; overflow:auto;
+    background:rgba(250,244,235,0.94); border-radius:22px; padding:36px 30px 30px;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,0.45);
+  }
+  .rhythm-card h3{ font-size:26px; text-align:center; }
+  .rhythm-card .sub{ text-align:center; font-style:italic; color:var(--ink-soft); font-size:15px; margin-top:4px; }
+  .rhythm-card hr{ border:none; border-top:1px solid var(--line); margin:20px 0; }
+  .rhythm-row{ display:flex; justify-content:space-between; align-items:center; gap:14px; padding:13px 0; border-bottom:1px solid var(--line); }
+  .rhythm-row:last-of-type{ border-bottom:none; }
+  .rhythm-day{ font-size:11px; letter-spacing:0.1em; color:var(--terracotta-deep); font-weight:600; text-transform:uppercase; margin-bottom:2px; }
+  .rhythm-title{ font-weight:700; font-size:15px; color:var(--ink); }
+  .rhythm-desc{ font-size:12.5px; color:var(--ink-soft); line-height:1.45; margin-top:2px; }
+  .toggle{ position:relative; width:46px; height:26px; flex:0 0 auto; }
+  .toggle input{ opacity:0; width:100%; height:100%; margin:0; cursor:pointer; position:absolute; z-index:2; }
+  .toggle .track{ position:absolute; inset:0; background:var(--sage); border-radius:99px; transition:background .2s ease; }
+  .toggle .knob{ position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.3); transition:left .2s ease; }
+  .toggle input:not(:checked) + .track{ background:#cfc6b8; }
+  .toggle input:checked ~ .knob{ left:23px; }
+  .toggle input:not(:checked) ~ .knob{ left:3px; }
+  .rhythm-quote{ text-align:center; font-style:italic; font-size:14.5px; color:var(--ink-soft); margin-top:22px; line-height:1.5; }
+
+  /* ---------- inside grid (6 items) ---------- */
+  .inside-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:18px; max-width:1150px; }
+  .inside-card{ background:var(--card); border:1px solid var(--line); border-radius:16px; padding:20px 18px; }
+  .inside-card .ic{ width:34px; height:34px; border-radius:50%; background:var(--terracotta); color:var(--cream); display:flex; align-items:center; justify-content:center; margin-bottom:12px; }
+  .inside-card .ic svg{ width:16px; height:16px; }
+  .inside-card h4{ font-family:'Manrope',sans-serif; font-weight:700; font-size:14.5px; margin-bottom:6px; }
+  .inside-card p{ font-size:12.8px; line-height:1.5; color:var(--ink-soft); }
+
+  /* ---------- closing ---------- */
+  .closing{ align-items:flex-start; }
+  .quote-box{
+    max-width:640px; margin-top:24px; background:var(--cream-deep); border-left:3px solid var(--terracotta);
+    border-radius:14px; padding:20px 24px;
+  }
+  .quote-box p{ font-family:'Cormorant Garamond', serif; font-style:italic; font-size:clamp(1.05rem, 1.8vw, 1.3rem); line-height:1.5; color:var(--ink); }
+  .quote-by{ display:block; margin-top:12px; font-family:'Manrope',sans-serif; font-size:12px; letter-spacing:0.1em; text-transform:uppercase; color:var(--terracotta-deep); }
+
+  .photo-showcase{
+    margin-top:24px; max-width:440px; width:100%;
+    background:var(--card); border:1px solid var(--line); border-radius:18px;
+    padding:12px; box-shadow:var(--shadow);
+  }
+  .photo-showcase img{
+    width:100%; height:auto; border-radius:12px; display:block; object-fit:cover;
+  }
+  .photo-caption{
+    margin-top:9px; font-size:13px; line-height:1.45; color:var(--ink-soft); text-align:center;
+  }
+
+  @media (max-width:820px){
+    .slide{ padding:104px 7vw 84px; }
+    .card-row{ grid-template-columns:1fr; }
+    .inside-grid{ grid-template-columns:repeat(2, 1fr); }
+    .plate-layout{ grid-template-columns:1fr; }
+    .plate-svg{ max-width:290px; margin:0 auto; }
+    .dots{ right:calc(2px + env(safe-area-inset-right)); }
+    .chrome-top, .chrome-bottom{ padding-left:6vw; padding-right:6vw; font-size:10.5px; }
+    .hero-watermark{ font-size:min(60vw, 300px); }
+    .ticket-head .q{ white-space:normal; }
+    .calc-wrap{ flex-direction:column; }
+    .gs-wrap{ flex-direction:column; }
+    .gs-diagram{ width:min(60vw, 260px); margin:0 auto; }
+    .cta-wrapper{ flex-direction:column; align-items:flex-start; gap:10px; }
+  }
+  @media (max-width:420px){
+    .calc-grid{ grid-template-columns:1fr 1fr; }
+    .cta-btn{ width:100%; }
+  }
+  @media (max-width:520px){
+    .inside-grid{ grid-template-columns:1fr; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+    html{ scroll-behavior:auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="chrome-top" id="chromeTop"><span>Move to Glow · Пространство Даши</span><span id="slideCounter">01 / 10</span></div>
+<div class="chrome-bottom" id="chromeBottom"><span>тело · лицо · свобода</span><span>руководство по балансу</span></div>
+
+<nav class="dots" id="dots">
+  <button data-target="s1" class="active" aria-label="Слайд 1"></button>
+  <button data-target="s2" aria-label="Слайд 2"></button>
+  <button data-target="s3" aria-label="Слайд 3"></button>
+  <button data-target="s4" aria-label="Слайд 4"></button>
+  <button data-target="s5" aria-label="Слайд 5"></button>
+  <button data-target="s6" aria-label="Слайд 6"></button>
+  <button data-target="s7" aria-label="Слайд 7"></button>
+  <button data-target="s8" aria-label="Слайд 8"></button>
+  <button data-target="s9" aria-label="Слайд 9"></button>
+  <button data-target="s10" aria-label="Слайд 10"></button>
+</nav>
+
+<main id="main">
+
+  <!-- S1 — HERO (С КНОПКОЙ И ЦЕНОЙ) -->
+  <section class="slide hero" id="s1">
+    <div class="hero-watermark">GLOW</div>
+    <div class="hero-content">
+      <span class="eyebrow">Твой персональный экосистема-выжималка</span>
+      <h1 class="hero-title">Move to Glow<span class="script">гармония питания и тела</span></h1>
+      <p class="hero-sub">Единое пространство естественного омоложения, осознанного питания,
+        лёгких тренировок и глубокой заботы о себе.</p>
+      
+      <div class="pill-row">
+        <span class="pill">🍽 Питание без диет</span>
+        <span class="pill">💎 Массаж &amp; Лифтинг</span>
+        <span class="pill">🛡 Поддержка &amp; Бережность</span>
+      </div>
+
+      <!-- КНОПКА И ЦЕНА (СЛАЙД 1) -->
+      <div class="cta-wrapper">
+        <a href="https://t.me/movetoglow_diag_bot" class="cta-btn">
+          <span>Присоединиться за 1 990 ₽ ✨</span>
+        </a>
+        <span class="cta-price-badge">
+          30 дней закрытого клуба · <strong>1 990 ₽</strong>
+        </span>
+      </div>
+
+      <div class="scroll-cue">Листайте вниз ↓</div>
+    </div>
+  </section>
+
+  <!-- S2 — MODULE 1: NUTRITION -->
+  <section class="slide" id="s2">
+    <span class="eyebrow">Модуль 1 · Тело &amp; Питание</span>
+    <h2>Подсчёт калорий — это свобода, а не ограничения</h2>
+    <p class="slide-sub">Мы учим точно понимать потребности своего организма — без голодовок, срывов и жёстких табу.</p>
+    <div class="card-row">
+      <div class="fact-card">
+        <span class="num">01</span>
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h4"/></svg></div>
+        <h3>Научный BMR &amp; TDEE</h3>
+        <p>Рассчитаешь точный базовый обмен по формуле Миффлина-Сан Жеора и свой реальный дневной расход с учётом шагов и тренировок.</p>
+        <span class="tag">✓ Персональный расчёт</span>
+      </div>
+      <div class="fact-card">
+        <span class="num">02</span>
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3c3 4 6 8 6 12a6 6 0 1 1-12 0c0-4 3-8 6-12Z"/></svg></div>
+        <h3>Безопасный дефицит</h3>
+        <p>Плавное снижение веса на комфортном дефиците с сохранением мышц, тонуса кожи и высокого уровня энергии.</p>
+        <span class="tag">✓ Комфортный темп</span>
+      </div>
+      <div class="fact-card">
+        <span class="num">03</span>
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21c-4-3-8-6-8-11a5 5 0 0 1 8-4 5 5 0 0 1 8 4c0 5-4 8-8 11Z"/></svg></div>
+        <h3>Идеальный БЖУ баланс</h3>
+        <p>Правильные пропорции белков для упругости, жиров для здоровья и углеводов для бодрости — без сложных таблиц.</p>
+        <span class="tag">✓ Качество &amp; рельеф</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- S3 — INTERACTIVE CALCULATOR -->
+  <section class="slide calc-slide" id="s3">
+    <span class="eyebrow">Интерактивный расчёт</span>
+    <h2>Посчитай свою суточную норму</h2>
+    <p class="slide-sub">Базовый обмен по формуле Миффлина-Сан Жеора — та же методика, которую разбираем в модуле «Тело &amp; Питание».</p>
+
+    <div class="calc-wrap">
+      <form class="calc-form" id="calcForm" novalidate>
+        <div class="calc-field">
+          <label>Пол</label>
+          <div class="seg" role="radiogroup" id="genderSeg">
+            <button type="button" class="seg-btn active" data-gender="female">Женский</button>
+            <button type="button" class="seg-btn" data-gender="male">Мужской</button>
+          </div>
+        </div>
+        <div class="calc-grid">
+          <div class="calc-field">
+            <label for="calcAge">Возраст</label>
+            <input type="number" id="calcAge" min="14" max="90" value="30" inputmode="numeric">
+          </div>
+          <div class="calc-field">
+            <label for="calcHeight">Рост, см</label>
+            <input type="number" id="calcHeight" min="130" max="220" value="165" inputmode="numeric">
+          </div>
+          <div class="calc-field">
+            <label for="calcWeight">Вес, кг</label>
+            <input type="number" id="calcWeight" min="35" max="200" value="60" inputmode="numeric">
+          </div>
+        </div>
+        <div class="calc-field">
+          <label for="calcActivity">Уровень активности</label>
+          <select id="calcActivity">
+            <option value="1.2">Минимальная — сидячий образ жизни</option>
+            <option value="1.375">Лёгкая — тренировки 1–3 раза в неделю</option>
+            <option value="1.55" selected>Средняя — тренировки 3–5 раз в неделю</option>
+            <option value="1.725">Высокая — тренировки 6–7 раз в неделю</option>
+            <option value="1.9">Очень высокая — физический труд и спорт</option>
+          </select>
+        </div>
+        <p class="calc-error" id="calcError" hidden>Проверь, пожалуйста, введённые значения — они выглядят не как реальные рост/вес/возраст.</p>
+        <button type="submit" class="calc-submit">Рассчитать мою норму</button>
+      </form>
+
+      <div class="calc-result" id="calcResult" hidden>
+        <div class="calc-result-row main"><span>Поддержание веса (TDEE)</span><strong id="rTdee">— ккал</strong></div>
+        <div class="calc-result-row"><span>Базовый обмен (BMR)</span><strong id="rBmr">— ккал</strong></div>
+        <div class="calc-result-row"><span>Комфортный дефицит для похудения</span><strong id="rDeficit">— ккал</strong></div>
+        <hr>
+        <div class="calc-macros">
+          <div><span id="rProtein">—</span><label>белки, г</label></div>
+          <div><span id="rFat">—</span><label>жиры, г</label></div>
+          <div><span id="rCarbs">—</span><label>углеводы, г</label></div>
+        </div>
+        <p class="calc-note">Это ориентировочный расчёт по общепринятой формуле, не медицинская рекомендация.
+          При хронических заболеваниях, беременности или расстройствах пищевого поведения — обязательно посоветуйся с врачом.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- S4 — PLATE WITH DESSERT (С КНОПКОЙ И ЦЕНОЙ) -->
+  <section class="slide" id="s4">
+    <span class="eyebrow">Конструктор тарелки</span>
+    <h2>Сбалансированная тарелка с десертом</h2>
+    <p class="slide-sub">Принцип «гарвардской тарелки» с осознанным десертом: 150–200 ккал сладостей включены в каждый день без чувства вины и срывов.</p>
+
+    <div class="plate-layout">
+      <div class="plate-illustration">
+        <svg class="plate-svg" viewBox="0 0 400 400" aria-label="Схема сбалансированной тарелки">
+          <circle cx="200" cy="200" r="185" fill="#F4EAE0" stroke="#E5D6C5" stroke-width="8"/>
+          <circle cx="200" cy="200" r="165" fill="#FFFDF9" stroke="#E5D6C5" stroke-width="2"/>
+
+          <path d="M 200 45 A 155 155 0 0 0 200 355 Z" fill="#8C9A76" opacity="0.88"/>
+          <path d="M 200 200 L 200 45 A 155 155 0 0 1 355 200 Z" fill="#B5622E" opacity="0.88"/>
+          <path d="M 200 200 L 355 200 A 155 155 0 0 1 200 355 Z" fill="#D99B61" opacity="0.88"/>
+
+          <line x1="200" y1="45" x2="200" y2="355" stroke="#FFFDF9" stroke-width="4"/>
+          <line x1="200" y1="200" x2="355" y2="200" stroke="#FFFDF9" stroke-width="4"/>
+          <circle cx="200" cy="200" r="15" fill="#FFFDF9"/>
+
+          <text x="120" y="200" fill="#FFFDF9" font-family="'Manrope', sans-serif" font-weight="700" font-size="14" text-anchor="middle">50% ОВОЩИ</text>
+          <text x="120" y="218" fill="#FAF2E8" font-family="'Manrope', sans-serif" font-size="11" text-anchor="middle">&amp; КЛЕТЧАТКА</text>
+
+          <text x="275" y="130" fill="#FFFDF9" font-family="'Manrope', sans-serif" font-weight="700" font-size="13" text-anchor="middle">25% БЕЛКИ</text>
+          <text x="275" y="146" fill="#FAF2E8" font-family="'Manrope', sans-serif" font-size="10.5" text-anchor="middle">Сытость и мышцы</text>
+
+          <text x="275" y="270" fill="#FFFDF9" font-family="'Manrope', sans-serif" font-weight="700" font-size="13" text-anchor="middle">25% УГЛЕВОДЫ</text>
+          <text x="275" y="286" fill="#FAF2E8" font-family="'Manrope', sans-serif" font-size="10.5" text-anchor="middle">Крупы &amp; жиры</text>
+
+          <g transform="translate(305, 75)">
+            <circle cx="0" cy="0" r="46" fill="#FFFDF9" stroke="#9A516E" stroke-width="2.5" filter="drop-shadow(0 6px 12px rgba(154,81,110,0.25))"/>
+            <circle cx="0" cy="0" r="39" fill="#9A516E" opacity="0.9"/>
+            <text x="0" y="-8" fill="#FFFDF9" font-family="'Manrope', sans-serif" font-weight="700" font-size="11" text-anchor="middle">ДЕСЕРТ</text>
+            <text x="0" y="8" fill="#FCE8EF" font-family="'Manrope', sans-serif" font-weight="600" font-size="10" text-anchor="middle">~200 ккал</text>
+            <text x="0" y="22" fill="#FCE8EF" font-family="'Manrope', sans-serif" font-size="8.5" text-anchor="middle">в день</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="plate-legend">
+        <div class="plate-item green">
+          <div class="plate-item-head">
+            <span class="plate-item-title">1/2 Тарелки · Овощи и зелень</span>
+            <span class="plate-item-share">50% объёма</span>
+          </div>
+          <p>Свежие салаты, тушёные или запечённые овощи, зелень. Дают объём, клетчатку и микроэлементы при минимальной калорийности.</p>
+        </div>
+
+        <div class="plate-item coral">
+          <div class="plate-item-head">
+            <span class="plate-item-title">1/4 Тарелки · Чистый белок</span>
+            <span class="plate-item-share">25% объёма</span>
+          </div>
+          <p>Рыба, птица, яйца, тофу или морепродукты. Долгое насыщение без перекусов, упругость кожи и питание мышечного корсета.</p>
+        </div>
+
+        <div class="plate-item sand">
+          <div class="plate-item-head">
+            <span class="plate-item-title">1/4 Тарелки · Сложные углеводы</span>
+            <span class="plate-item-share">25% объёма</span>
+          </div>
+          <p>Гречка, киноа, бурый рис, картофель или цельнозерновой хлеб + немного полезных жиров (авокадо, оливковое масло).</p>
+        </div>
+
+        <div class="plate-item sweet">
+          <div class="plate-item-head">
+            <span class="plate-item-title">Десерт ~200 ккал · Каждый день</span>
+            <span class="plate-item-share" style="color:#9A516E;">Правило 80/20</span>
+          </div>
+          <p>Планируется осознанно <strong>сразу после основного приёма пищи</strong>: белок и клетчатка гасят сахарный пик, предотвращая приступы голода и срывы.</p>
+          <div class="dessert-examples">
+            <span>• <strong>Шоколад:</strong> 2–3 дольки качественного тёмного или молочного (~25–30 г)</span>
+            <span>• <strong>Выпечка:</strong> 1/2 классического круассана или 1 пирожное макарон</span>
+            <span>• <strong>Десерт:</strong> 1 небольшой эклер (~45 г) или шарик сливочного пломбира с ягодами</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- КНОПКА И ЦЕНА (СЛАЙД 4) -->
+    <div class="cta-wrapper" style="margin-top: 32px;">
+      <a href="https://t.me/movetoglow_diag_bot" class="cta-btn">
+        <span>Получить доступ к клубу за 1 990 ₽ 🥑</span>
+      </a>
+      <span class="cta-price-badge">
+        Готовые меню и тарелки на месяц · <strong>1 990 ₽</strong>
+      </span>
+    </div>
+  </section>
+
+  <!-- S5 — MODULE 2: FACE -->
+  <section class="slide" id="s5">
+    <span class="eyebrow">Модуль 2 · Лицо &amp; Лимфодренаж</span>
+    <h2>Естественное сияние и снятие отёчности</h2>
+    <p class="slide-sub">Системный физиологичный подход к лифтингу лица через открытие ключичных узлов и техники Гуаша.</p>
+    <div class="card-row">
+      <div class="fact-card">
+        <span class="num">01</span>
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 12h16M4 12l4-4M4 12l4 4"/></svg></div>
+        <h3>Микроциркуляция</h3>
+        <p>Правильная техника массажа Гуаша поддерживает ток крови и мягко стимулирует клеточный метаболизм кожи.</p>
+        <span class="tag">✓ Ручные &amp; инструментальные техники</span>
+      </div>
+      <div class="fact-card">
+        <span class="num">02</span>
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3v6M18 3v6M4 9h16M12 9v12"/></svg></div>
+        <h3>Открытие лимфотока</h3>
+        <p>Секрет свежего лица — обязательный предварительный помпаж надключичных ямок и правильный сброс лимфы по шее.</p>
+        <span class="tag">✓ Устранение утренней отёчности</span>
+      </div>
+      <div class="fact-card">
+        <span class="num">03</span>
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3c-3 4-6 7-6 11a6 6 0 0 0 12 0c0-4-3-7-6-11Z"/></svg></div>
+        <h3>Безопасные средства</h3>
+        <p>Точный подбор некомедогенных масел и бальзамов, которые не забивают поры и дают мягкое скольжение.</p>
+        <span class="tag">✓ Чистая &amp; подтянутая кожа</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- S6 — GUA SHA INTERACTIVE DIAGRAM -->
+  <section class="slide" id="s6">
+    <span class="eyebrow">Интерактивный гайд</span>
+    <h2>Гуаша: по каким линиям двигаться</h2>
+    <ul class="gs-tips">
+      <li>Наноси масло или сыворотку перед началом — камень должен скользить, а не тянуть кожу.</li>
+      <li>Держи камень почти плашмя: угол к коже примерно 15–30°, не перпендикулярно.</li>
+      <li>Давление лёгкое — достаточное, чтобы вести кожу, а не продавливать её.</li>
+      <li>Каждая зона всегда завершается движением вниз к шее и ключицам.</li>
+    </ul>
+    <div class="gs-wrap">
+      <div class="gs-diagram">
+        <svg viewBox="0 0 600 780" aria-hidden="true">
+          <ellipse class="gs-face-line" cx="300" cy="330" rx="140" ry="190"/>
+          <path class="gs-face-line" d="M226 491 C 210 545, 202 590, 206 620 C 208 645, 216 660, 228 672"/>
+          <path class="gs-face-line" d="M374 491 C 390 545, 398 590, 394 620 C 392 645, 384 660, 372 672"/>
+          <path class="gs-face-line" d="M228 672 C 250 686, 350 686, 372 672"/>
+          <path class="gs-face-feature" d="M238 300 Q258 288 278 300"/>
+          <path class="gs-face-feature" d="M322 300 Q342 288 362 300"/>
+          <path class="gs-face-feature" d="M230 270 Q258 258 282 268"/>
+          <path class="gs-face-feature" d="M318 268 Q342 258 370 270"/>
+          <path class="gs-face-feature" d="M300 265 L296 322 L288 340"/>
+          <path class="gs-face-feature" d="M270 392 Q300 402 330 392"/>
+
+          <g class="gs-clavicle" data-zone="clavicle">
+            <circle cx="228" cy="672" r="9"/>
+            <circle cx="372" cy="672" r="9"/>
+          </g>
+          <path class="gs-line" data-zone="neck" d="M226 491 C 210 545, 202 590, 206 620 C 208 645, 216 660, 228 672" marker-end="url(#gsArrow)"/>
+          <path class="gs-line" data-zone="neck" d="M374 491 C 390 545, 398 590, 394 620 C 392 645, 384 660, 372 672" marker-end="url(#gsArrow)"/>
+          <path class="gs-line" data-zone="neck" d="M300 520 Q258 512 226 491 Q198 460 174 413" marker-end="url(#gsArrow)"/>
+          <path class="gs-line" data-zone="jaw" d="M300 520 Q342 512 374 491 Q402 460 426 413" marker-end="url(#gsArrow)"/>
+          <path class="gs-line" data-zone="cheek" d="M280 438 Q252 414 240 400 Q205 408 174 413" marker-end="url(#gsArrow)"/>
+          <path class="gs-line" data-zone="cheek" d="M320 438 Q348 414 360 400 Q395 408 426 413" marker-end="url(#gsArrow)"/>
+          <path class="gs-line" data-zone="forehead" d="M260 300 Q230 240 210 185" marker-end="url(#gsArrow)"/>
+          <path class="gs-line" data-zone="forehead" d="M340 300 Q370 240 390 185" marker-end="url(#gsArrow)"/>
+          <path class="gs-line" data-zone="reset" d="M210 185 Q180 230 166 278 Q168 350 174 413 Q188 500 206 620 Q208 645 228 672" marker-end="url(#gsArrow)"/>
+          <path class="gs-line" data-zone="reset" d="M390 185 Q420 230 434 278 Q432 350 426 413 Q412 500 394 620 Q392 645 372 672" marker-end="url(#gsArrow)"/>
+
+          <defs>
+            <marker id="gsArrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+              <path d="M0 0 L8 4 L0 8 Z" fill="var(--terracotta)"/>
+            </marker>
+          </defs>
+        </svg>
+      </div>
+      <div class="gs-panel">
+        <div class="gs-zones" id="gsZones">
+          <button type="button" class="gs-zone-btn" data-zone="clavicle">Ключицы</button>
+          <button type="button" class="gs-zone-btn" data-zone="neck">Шея</button>
+          <button type="button" class="gs-zone-btn" data-zone="jaw">Овал и подбородок</button>
+          <button type="button" class="gs-zone-btn" data-zone="cheek">Скулы</button>
+          <button type="button" class="gs-zone-btn" data-zone="forehead">Лоб</button>
+          <button type="button" class="gs-zone-btn" data-zone="reset">Финальный сброс</button>
+        </div>
+        <div class="gs-desc" id="gsDesc">
+          <h4>Выбери зону слева</h4>
+          <p>Нажми на любую кнопку, чтобы увидеть направление линии на схеме и технику работы для этой зоны.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- S7 — MODULE 3: FAQ (ticket style) -->
+  <section class="slide" id="s7">
+    <span class="eyebrow">Модуль 3 · Свобода &amp; Ответы на вопросы</span>
+    <h2>Запреты ведут к срывам, планирование — к контролю</h2>
+    <p class="slide-sub">Мы снимаем тревожность вокруг еды и привычек, заменяя мифы научным пониманием физиологии.</p>
+    <div class="ticket">
+      <div class="ticket-row">
+        <div class="ticket-head"><span class="q">Сладкое разрешено!</span><span class="leader"></span><span class="tag">без чувства вины</span></div>
+        <p>Планируй 150–200 ккал в день на любимый десерт. Когда нет строгих запретов — исчезает психологическое напряжение и тяга к срывам.</p>
+      </div>
+      <div class="ticket-row">
+        <div class="ticket-head"><span class="q">Ужин и плато веса</span><span class="leader"></span><span class="tag">спокойное понимание тела</span></div>
+        <p>Разрушаем мифы: ужинать поздно можно, а задержка воды при тренировках — это норма. Главное — суточный баланс.</p>
+      </div>
+      <div class="ticket-row">
+        <div class="ticket-head"><span class="q">Сила 5 минут в день</span><span class="leader"></span><span class="tag">лёгкий и устойчивый ритм</span></div>
+        <p>5 минут осознанной заботы каждое утро дают более яркий и долговечный результат, чем 2 часа раз в месяц.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- S8 — RHYTHM (full-bleed interactive) -->
+  <section class="slide rhythm-slide" id="s8">
+    <div class="rhythm-bg"></div>
+    <div class="rhythm-card">
+      <h3>Гармоничный ритм недели</h3>
+      <p class="sub">В закрытом Telegram-канале</p>
+      <hr>
+      <div class="rhythm-row">
+        <div>
+          <div class="rhythm-day">Каждый понедельник</div>
+          <div class="rhythm-title">Массаж &amp; Лифтинг лица</div>
+          <div class="rhythm-desc">Видеоуроки: техника Гуаша, открытие ключиц, лимфодренаж и снятие отёчности</div>
+        </div>
+        <label class="toggle"><input type="checkbox" checked><span class="track"></span><span class="knob"></span></label>
+      </div>
+      <div class="rhythm-row">
+        <div>
+          <div class="rhythm-day">Каждую среду</div>
+          <div class="rhythm-title">Умное движение с Дашей: тонус &amp; осанка</div>
+          <div class="rhythm-desc">Видео домашних практик и гайды без прыжков и перегрузок: запускаем лимфодренаж через движение мышц, расправляем плечи и возвращаем тонус</div>
+        </div>
+        <label class="toggle"><input type="checkbox" checked><span class="track"></span><span class="knob"></span></label>
+      </div>
+      <div class="rhythm-row">
+        <div>
+          <div class="rhythm-day">Каждую пятницу</div>
+          <div class="rhythm-title">Теория и питание без диет</div>
+          <div class="rhythm-desc">Конструктор сбалансированных тарелок, расчёт КБЖУ, десерты и разбор ошибок</div>
+        </div>
+        <label class="toggle"><input type="checkbox" checked><span class="track"></span><span class="knob"></span></label>
+      </div>
+      <div class="rhythm-row">
+        <div>
+          <div class="rhythm-day">Каждую субботу</div>
+          <div class="rhythm-title">Эстетика, укладки и сборы</div>
+          <div class="rhythm-desc">Бьюти-рутина, лёгкие укладки, ритуалы расслабления и подготовка к выходным</div>
+        </div>
+        <label class="toggle"><input type="checkbox" checked><span class="track"></span><span class="knob"></span></label>
+      </div>
+      <p class="rhythm-quote">«5 минут в день дают больше, чем 2 часа раз в месяц»</p>
+    </div>
+  </section>
+
+  <!-- S9 — WHAT'S INSIDE (6-grid) -->
+  <section class="slide" id="s9">
+    <span class="eyebrow">Основы системы</span>
+    <h2>Что формирует устойчивый результат?</h2>
+    <p class="slide-sub">Комплексный подход, соединяющий физиологию питания, лимфодренаж и бережное отношение к себе.</p>
+    <div class="inside-grid">
+      <div class="inside-card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 11l2 2 4-4M20 12a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z"/></svg></div>
+        <h4>Конструктор питания</h4>
+        <p>Готовые схемы сбалансированных тарелок и списки продуктов без сложных кулинарных рецептов.</p>
+      </div>
+      <div class="inside-card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="6" width="14" height="12" rx="2"/><path d="M17 10l4-2v8l-4-2"/></svg></div>
+        <h4>Массажные техники</h4>
+        <p>Пошаговые разборы массажа Гуаша, ручных лимфодренажных техник и утренних зарядок от отёков.</p>
+      </div>
+      <div class="inside-card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16v12H8l-4 4V4Z"/></svg></div>
+        <h4>Регулярный самоанализ</h4>
+        <p>Простое отслеживание динамики самочувствия, параметров тела и уровня энергии без невроза.</p>
+      </div>
+      <div class="inside-card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6M15.5 14.2c2.5.4 4.5 2.4 4.5 5.8"/></svg></div>
+        <h4>Спокойное отношение</h4>
+        <p>Никакой самокритики за съеденное или пропущенное утро — только осознанность и забота.</p>
+      </div>
+      <div class="inside-card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 5a2 2 0 0 1 2-2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5Z"/><path d="M14 3v5h5"/></svg></div>
+        <h4>Понятные инструкции</h4>
+        <p>Компактные памятки, визуальные схемы порций и формулы, которые легко держать под рукой.</p>
+      </div>
+      <div class="inside-card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s-7-4.6-9.4-9A5 5 0 0 1 12 6a5 5 0 0 1 9.4 6c-2.4 4.4-9.4 9-9.4 9Z"/></svg></div>
+        <h4>Принцип бережности</h4>
+        <p>Движение в персональном темпе. Здоровье строится на мягкой дисциплине, а не на самоистязании.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- S10 — CLOSING PHILOSOPHY & RESULT (С КНОПКОЙ И ЦЕНОЙ) -->
+  <section class="slide closing" id="s10">
+    <span class="eyebrow">Твоё отражение</span>
+    <h2 style="max-width:20ch;">Лёгкость рождается из понимания своего тела</h2>
+    
+    <div class="quote-box">
+      <p>«Когда ты убираешь войну со своим организмом и начинаешь кормить его вкусно и сытно, добавляя всего несколько минут лимфодренажа в день — отражение в зеркале меняется само собой.»</p>
+      <span class="quote-by">— Move to Glow</span>
+    </div>
+
+    <!-- ФОТО РЕЗУЛЬТАТА -->
+    <div class="photo-showcase">
+      <img src="dasha-year.jpg" alt="Результат Move to Glow" loading="lazy">
+      <p class="photo-caption">Результат ученицы: 1 год в системе Move to Glow</p>
+    </div>
+
+    <!-- КНОПКА И ЦЕНА (СЛАЙД 10) -->
+    <div class="cta-wrapper">
+      <a href="https://t.me/movetoglow_diag_bot" class="cta-btn">
+        <span>Вступить в клуб за 1 990 ₽ ✨</span>
+      </a>
+      <span class="cta-price-badge">
+        Доступ на 30 дней · <strong>1 990 ₽</strong>
+      </span>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  const main = document.getElementById('main');
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const dots = Array.from(document.querySelectorAll('#dots button'));
+  const counter = document.getElementById('slideCounter');
+  const chromeTop = document.getElementById('chromeTop');
+  const chromeBottom = document.getElementById('chromeBottom');
+  const darkSlideIds = new Set(['s8']);
+
+  dots.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.getElementById(btn.dataset.target).scrollIntoView({behavior:'smooth'});
+    });
+  });
+
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        const idx = slides.indexOf(entry.target);
+        dots.forEach(d=>d.classList.remove('active'));
+        dots[idx].classList.add('active');
+        counter.textContent = String(idx+1).padStart(2,'0') + ' / ' + String(slides.length).padStart(2,'0');
+        const dark = darkSlideIds.has(entry.target.id);
+        chromeTop.classList.toggle('on-dark', dark);
+        chromeBottom.classList.toggle('on-dark', dark);
+        document.getElementById('dots').classList.toggle('on-dark', dark);
+      }
+    });
+  }, {root: main, threshold: 0.55});
+  slides.forEach(s=>io.observe(s));
+
+  window.addEventListener('keydown', (e)=>{
+    const activeIdx = dots.findIndex(d=>d.classList.contains('active'));
+    if(e.key === 'ArrowDown' || e.key === 'PageDown'){
+      e.preventDefault();
+      slides[Math.min(activeIdx+1, slides.length-1)].scrollIntoView({behavior:'smooth'});
+    }
+    if(e.key === 'ArrowUp' || e.key === 'PageUp'){
+      e.preventDefault();
+      slides[Math.max(activeIdx-1, 0)].scrollIntoView({behavior:'smooth'});
+    }
+  });
+
+  document.querySelector('.scroll-cue').addEventListener('click', ()=>{
+    document.getElementById('s2').scrollIntoView({behavior:'smooth'});
+  });
+
+  // ---- BMR / TDEE calculator ----
+  (function(){
+    const form = document.getElementById('calcForm');
+    const segBtns = document.querySelectorAll('#genderSeg .seg-btn');
+    const errorEl = document.getElementById('calcError');
+    const resultEl = document.getElementById('calcResult');
+    let gender = 'female';
+
+    segBtns.forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        segBtns.forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        gender = btn.dataset.gender;
+      });
+    });
+
+    form.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const age = parseFloat(document.getElementById('calcAge').value);
+      const height = parseFloat(document.getElementById('calcHeight').value);
+      const weight = parseFloat(document.getElementById('calcWeight').value);
+      const activity = parseFloat(document.getElementById('calcActivity').value);
+
+      const valid = age >= 14 && age <= 90 && height >= 130 && height <= 220 && weight >= 35 && weight <= 200;
+      if(!valid){
+        errorEl.hidden = false;
+        resultEl.hidden = true;
+        return;
+      }
+      errorEl.hidden = true;
+
+      const bmr = gender === 'male'
+        ? 10*weight + 6.25*height - 5*age + 5
+        : 10*weight + 6.25*height - 5*age - 161;
+      const tdee = bmr * activity;
+
+      const absFloor = gender === 'male' ? 1500 : 1200;
+      const floor = Math.max(bmr, absFloor);
+      let deficitLow = Math.max(tdee - 300, floor);
+      let deficitHigh = Math.max(tdee - 200, floor);
+      if(deficitHigh < deficitLow) deficitHigh = deficitLow;
+
+      const target = (deficitLow + deficitHigh) / 2;
+      const protein = weight * 1.7;
+      const fat = weight * 1.0;
+      let carbs = (target - protein*4 - fat*9) / 4;
+      if(carbs < 0) carbs = 0;
+
+      document.getElementById('rBmr').textContent = Math.round(bmr) + ' ккал';
+      document.getElementById('rTdee').textContent = Math.round(tdee) + ' ккал';
+      document.getElementById('rDeficit').textContent = Math.round(deficitLow) + '–' + Math.round(deficitHigh) + ' ккал';
+      document.getElementById('rProtein').textContent = Math.round(protein);
+      document.getElementById('rFat').textContent = Math.round(fat);
+      document.getElementById('rCarbs').textContent = Math.round(carbs);
+
+      resultEl.hidden = false;
+      resultEl.scrollIntoView({behavior:'smooth', block:'nearest'});
+    });
+  })();
+
+  // ---- Gua sha interactive diagram ----
+  (function(){
+    const zoneBtns = document.querySelectorAll('#gsZones .gs-zone-btn');
+    const lines = document.querySelectorAll('.gs-line');
+    const clavicle = document.querySelector('.gs-clavicle');
+    const descEl = document.getElementById('gsDesc');
+
+    lines.forEach(line=>{
+      const len = line.getTotalLength();
+      line.style.strokeDasharray = len;
+      line.style.strokeDashoffset = len;
+    });
+
+    const info = {
+      clavicle: { title:'Ключицы', text:'Приложи плоский край камня к надключичным ямкам и сделай мягкие нажатия-скольжения. Это открывает главный отток лимфы — без этого шага остальные линии работают слабее.', angle:'плашмя', dir:'лёгкое нажатие', reps:'8–10 раз' },
+      neck: { title:'Шея', text:'От угла челюсти веди камень вниз по боковой поверхности шеи к ключице. Гортань не задевай.', angle:'15–20°', dir:'сверху вниз', reps:'5–6 раз на сторону' },
+      jaw: { title:'Овал и подбородок', text:'От центра подбородка веди камень вдоль нижней челюсти к мочке уха, слегка приподнимая овал лица.', angle:'20–30°', dir:'от центра к уху', reps:'5–6 раз на сторону' },
+      cheek: { title:'Скулы', text:'От крыльев носа веди камень вдоль скулы к виску — это снимает отёчность и мягко приподнимает щёки.', angle:'15–20°', dir:'от носа к виску', reps:'5–6 раз на сторону' },
+      forehead: { title:'Лоб', text:'От центра брови веди камень вверх и в сторону виска, будто разглаживаешь лоб.', angle:'15°', dir:'снизу вверх, наружу', reps:'5 раз на сторону' },
+      reset: { title:'Финальный сброс', text:'Завершающий непрерывный проход: лоб → висок → ухо → шея → ключица. Он разгружает всё, что было проработано выше.', angle:'15–20°', dir:'один непрерывный проход', reps:'2–3 раза' }
+    };
+
+    function showZone(zone){
+      zoneBtns.forEach(b=>b.classList.toggle('active', b.dataset.zone === zone));
+      lines.forEach(line=>{
+        if(line.dataset.zone === zone){
+          line.style.strokeDashoffset = 0;
+        } else {
+          line.style.strokeDashoffset = line.getTotalLength();
+        }
+      });
+      clavicle.classList.remove('active');
+      if(zone === 'clavicle'){
+        void clavicle.offsetWidth;
+        clavicle.classList.add('active');
+      }
+      const d = info[zone];
+      descEl.innerHTML =
+        '<h4>' + d.title + '</h4><p>' + d.text + '</p>' +
+        '<div class="meta"><span>∠ ' + d.angle + '</span><span>↝ ' + d.dir + '</span><span>× ' + d.reps + '</span></div>';
+    }
+
+    zoneBtns.forEach(btn=>{
+      btn.addEventListener('click', ()=> showZone(btn.dataset.zone));
+    });
+  })();
+</script>
+
+</body>
+</html>
